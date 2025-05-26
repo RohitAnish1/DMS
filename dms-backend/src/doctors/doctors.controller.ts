@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body } from '@nestjs/common';
 import { DoctorsService } from './doctors.service';
 
 @Controller('doctors')
@@ -13,5 +13,11 @@ export class DoctorsController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.doctorsService.findOne(Number(id));
+  }
+
+  @Post('complete-onboarding')
+  async completeOnboarding(@Body() body: any) {
+    // You can add logic to mark onboarding as complete for the doctor
+    return this.doctorsService.completeOnboarding(body);
   }
 }

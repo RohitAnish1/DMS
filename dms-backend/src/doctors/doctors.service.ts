@@ -12,4 +12,9 @@ export class DoctorsService {
   async findOne(id: number) {
     return this.prisma.doctor.findUnique({ where: { id }, include: { user: true, locations: true } });
   }
+
+  async completeOnboarding(body: any) {
+    // Stub: mark onboarding as complete for the doctor (implement logic as needed)
+    return { success: true, message: 'Onboarding completed (stub)' };
+  }
 }
