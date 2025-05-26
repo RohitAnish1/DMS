@@ -53,7 +53,7 @@ class ApiService {
     phone: string
     medicalRegistrationNumber: string
   }) {
-    return this.request("/api/doctors/register", {
+    return this.request("/doctors/register", {
       method: "POST",
       body: JSON.stringify(data),
     })
@@ -74,7 +74,7 @@ class ApiService {
       }
     })
 
-    return this.request("/api/doctors/profile", {
+    return this.request("/doctors/profile", {
       method: "POST",
       headers: {}, // Remove Content-Type to let browser set it for FormData
       body: formData,
@@ -87,7 +87,7 @@ class ApiService {
     address: string
     phone: string
   }) {
-    return this.request("/api/doctors/locations", {
+    return this.request("/doctors/locations", {
       method: "POST",
       body: JSON.stringify(data),
     })
@@ -112,7 +112,7 @@ class ApiService {
       }>
     },
   ) {
-    return this.request(`/api/doctors/locations/${locationId}/availability`, {
+    return this.request(`/doctors/locations/${locationId}/availability`, {
       method: "POST",
       body: JSON.stringify(data),
     })
@@ -120,14 +120,14 @@ class ApiService {
 
   // Complete Onboarding
   async completeOnboarding() {
-    return this.request("/api/doctors/complete-onboarding", {
+    return this.request("/doctors/complete-onboarding", {
       method: "POST",
     })
   }
 
   // Get Specializations
   async getSpecializations() {
-    return this.request("/api/doctors/specializations")
+    return this.request("/doctors/specializations")
   }
 }
 
