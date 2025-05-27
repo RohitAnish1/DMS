@@ -11,6 +11,9 @@ export class DoctorsService {
   }
 
   async findOne(id: number) {
+    if (!id) {
+      throw new Error('Doctor id is required');
+    }
     return this.prisma.doctor.findUnique({ where: { id }, include: { user: true, locations: true } });
   }
 
