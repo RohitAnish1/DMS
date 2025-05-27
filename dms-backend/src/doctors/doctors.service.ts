@@ -44,6 +44,8 @@ export class DoctorsService {
         password: hashedPassword,
         name: data.fullName,
         role: 'doctor',
+        phone: data.phone,
+        medicalRegistrationNumber: data.medicalRegistrationNumber,
       },
     });
 

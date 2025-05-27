@@ -31,10 +31,17 @@ export class AuthService {
     };
   }
 
-  async register(data: { email: string; password: string; name: string; role: string }) {
+  async register(data: { email: string; password: string; name: string; role: string; phone: string; medicalRegistrationNumber: string }) {
     const hashed = await bcrypt.hash(data.password, 10);
     const user = await this.prisma.user.create({
-      data: { ...data, password: hashed },
+      data: { 
+        email: data.email,
+        password: hashed,
+        name: data.name,
+        role: data.role,
+        phone: data.phone,
+        medicalRegistrationNumber: data.medicalRegistrationNumber
+      },
     });
     const payload = { sub: user.id, email: user.email, role: user.role };
     return {
