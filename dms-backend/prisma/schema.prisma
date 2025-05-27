@@ -17,6 +17,8 @@ model User {
   appointmentsAsPatient Appointment[] @relation("PatientAppointments")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  phone     String
+  medicalRegistrationNumber String
 }
 
 model Doctor {
