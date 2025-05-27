@@ -79,4 +79,9 @@ export class DoctorsService {
     // Stub: implement add practice location logic here
     return { success: true, message: 'Practice location added (stub)' };
   }
+
+  async setAvailability(locationId: string, data: any) {
+    // Stub: implement set availability logic here
+    return { success: true, message: 'Availability set (stub)' };
+  }
 }

@@ -44,4 +44,10 @@ export class DoctorsController {
     // Stub: implement add practice location logic here
     return this.doctorsService.addPracticeLocation(body);
   }
+
+  @Post('locations/:locationId/availability')
+  async setAvailability(@Param('locationId') locationId: string, @Body() body: any) {
+    // Stub: implement set availability logic here
+    return this.doctorsService.setAvailability(locationId, body);
+  }
 }
