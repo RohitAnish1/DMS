@@ -74,4 +74,9 @@ export class DoctorsService {
     // Stub: implement doctor profile setup logic here
     return { success: true, message: 'Doctor profile setup (stub)' };
   }
+
+  async addPracticeLocation(data: any) {
+    // Stub: implement add practice location logic here
+    return { success: true, message: 'Practice location added (stub)' };
+  }
 }

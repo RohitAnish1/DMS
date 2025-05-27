@@ -38,4 +38,10 @@ export class DoctorsController {
     // Stub: implement doctor profile setup logic here
     return this.doctorsService.setupProfile(body);
   }
+
+  @Post('locations')
+  async addPracticeLocation(@Body() body: any) {
+    // Stub: implement add practice location logic here
+    return this.doctorsService.addPracticeLocation(body);
+  }
 }
