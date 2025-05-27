@@ -32,4 +32,10 @@ export class DoctorsController {
     }
     return this.doctorsService.register(body);
   }
+
+  @Post('profile')
+  async setupProfile(@Body() body: any) {
+    // Stub: implement doctor profile setup logic here
+    return this.doctorsService.setupProfile(body);
+  }
 }

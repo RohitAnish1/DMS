@@ -69,4 +69,9 @@ export class DoctorsService {
       data: { user, doctor },
     };
   }
+
+  async setupProfile(data: any) {
+    // Stub: implement doctor profile setup logic here
+    return { success: true, message: 'Doctor profile setup (stub)' };
+  }
 }
