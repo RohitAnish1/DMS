@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class DoctorsService {
@@ -16,5 +17,51 @@ export class DoctorsService {
   async completeOnboarding(body: any) {
     // Stub: mark onboarding as complete for the doctor (implement logic as needed)
     return { success: true, message: 'Onboarding completed (stub)' };
+  }
+
+  async register(data: any) {
+    // Validate required fields
+    const requiredFields = ['email', 'password', 'fullName', 'phone', 'medicalRegistrationNumber'];
+    for (const field of requiredFields) {
+      if (!data[field]) {
+        return { success: false, message: `${field} is required` };
+      }
+    }
+
+    // Check if user already exists
+    const existingUser = await this.prisma.user.findUnique({ where: { email: data.email } });
+    if (existingUser) {
+      return { success: false, message: 'Email already registered' };
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+
+    // Create user
+    const user = await this.prisma.user.create({
+      data: {
+        email: data.email,
+        password: hashedPassword,
+        name: data.fullName,
+        role: 'doctor',
+      },
+    });
+
+    // Create doctor profile
+    const doctor = await this.prisma.doctor.create({
+      data: {
+        userId: user.id,
+        specialty: data.specialization || '',
+        // Add more fields if your schema supports them
+      },
+    });
+
+    // Optionally, update user or doctor with phone and medicalRegistrationNumber if your schema supports it
+
+    return {
+      success: true,
+      message: 'Doctor registered successfully',
+      data: { user, doctor },
+    };
   }
 }

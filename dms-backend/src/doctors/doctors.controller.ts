@@ -20,4 +20,16 @@ export class DoctorsController {
     // You can add logic to mark onboarding as complete for the doctor
     return this.doctorsService.completeOnboarding(body);
   }
+
+  @Post('register')
+  async register(@Body() body: any) {
+    // Validate required fields
+    const requiredFields = ['email', 'password', 'fullName', 'phone', 'medicalRegistrationNumber'];
+    for (const field of requiredFields) {
+      if (!body[field]) {
+        return { success: false, message: `${field} is required` };
+      }
+    }
+    return this.doctorsService.register(body);
+  }
 }
