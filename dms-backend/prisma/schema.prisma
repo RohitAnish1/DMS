@@ -12,13 +12,17 @@ model User {
   email     String   @unique
   password  String
   name      String
-  role      String   // e.g., 'doctor', 'patient', 'admin'
-  doctor    Doctor?
+  role      String   // 'doctor' or 'patient'
+  phone     String
+  medicalRegistrationNumber String? // optional for patients
+  dateOfBirth DateTime?
+  gender    String?
+  address   String?
+  profilePhoto String?
   appointmentsAsPatient Appointment[] @relation("PatientAppointments")
+  doctor    Doctor?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  phone     String
-  medicalRegistrationNumber String
 }
 
 model Doctor {

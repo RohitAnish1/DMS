@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, Clock, MapPin, Users, Star, ArrowRight, CheckCircle } from "lucide-react"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 export default function HomePage() {
   const router = useRouter()
@@ -54,8 +55,24 @@ export default function HomePage() {
               <span className="text-xl font-bold text-gray-900">Schedula</span>
             </div>
             <div className="flex items-center space-x-4">
-              <Button variant="ghost">Sign In</Button>
-              <Button onClick={() => router.push("/onboarding")}>Get Started</Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost">Sign In</Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => router.push("/patient/login")}>Patient Login</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push("/doctor/login")}>Doctor Login</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button>Get Started</Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => router.push("/patient/register")}>Join as Patient</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push("/onboarding")}>Join as Doctor</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
@@ -73,14 +90,25 @@ export default function HomePage() {
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
             Schedula is the all-in-one practice management platform that helps doctors manage appointments, patients,
-            and availability across multiple locations with ease.
+            and availability, while providing patients with easy access to healthcare services.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" onClick={() => router.push("/onboarding")} className="text-lg px-8 py-3">
-              Start Free Onboarding
+              Onboard as Doctor
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
-            <Button size="lg" variant="outline" className="text-lg px-8 py-3">
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={() => router.push("/patient/register")}
+              className="text-lg px-8 py-3"
+            >
+              Onboard as Patient
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+          </div>
+          <div className="flex justify-center mt-4">
+            <Button size="lg" variant="ghost" className="text-lg px-8 py-3">
               Watch Demo
             </Button>
           </div>
@@ -180,15 +208,17 @@ export default function HomePage() {
               onClick={() => router.push("/onboarding")}
               className="text-lg px-8 py-3"
             >
-              Start Your Free Onboarding
+              Start Doctor Onboarding
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
             <Button
               size="lg"
               variant="outline"
+              onClick={() => router.push("/patient/register")}
               className="text-lg px-8 py-3 border-white text-white hover:bg-white hover:text-blue-600"
             >
-              Contact Sales
+              Start Patient Registration
+              <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           </div>
           <p className="text-blue-200 mt-4 text-sm">No credit card required • Setup in under 10 minutes</p>

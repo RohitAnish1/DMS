@@ -9,7 +9,7 @@ class ApiService {
   private baseUrl: string
 
   constructor() {
-    this.baseUrl = process.env.NEXT_PUBLIC_BASE_API_URL || "https://dms-yyzx.onrender.com"
+    this.baseUrl = process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:3000"
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
@@ -128,6 +128,107 @@ class ApiService {
   // Get Specializations
   async getSpecializations() {
     return this.request("/doctors/specializations")
+  }
+
+  // Patient Authentication
+  async loginPatient(data: {
+    email: string
+    password: string
+  }) {
+    return this.request("/patients/login", {
+      method: "POST",
+      body: JSON.stringify(data),
+    })
+  }
+
+  async registerPatient(data: {
+    fullName: string
+    email: string
+    password: string
+    phone: string
+    dateOfBirth: string
+    gender: string
+    address: string
+  }) {
+    return this.request("/patients/register", {
+      method: "POST",
+      body: JSON.stringify(data),
+    })
+  }
+
+  // Patient Profile
+  async getPatientProfile() {
+    return this.request("/patients/profile")
+  }
+
+  async updatePatientProfile(data: {
+    fullName: string
+    email: string
+    phone: string
+    dateOfBirth: string
+    gender: string
+    address: string
+    profilePhoto?: File
+  }) {
+    const formData = new FormData()
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== undefined) {
+        formData.append(key, value as string | Blob)
+      }
+    })
+
+    return this.request("/patients/profile", {
+      method: "PUT",
+      headers: {}, // Remove Content-Type to let browser set it for FormData
+      body: formData,
+    })
+  }
+
+  // Patient Appointments
+  async getPatientAppointments() {
+    return this.request("/patients/appointments")
+  }
+
+  async bookAppointment(data: {
+    doctorId: string
+    locationId: string
+    date: string
+    time: string
+    reason: string
+  }) {
+    return this.request("/patients/appointments", {
+      method: "POST",
+      body: JSON.stringify(data),
+    })
+  }
+
+  async cancelAppointment(appointmentId: string) {
+    return this.request(`/patients/appointments/${appointmentId}`, {
+      method: "DELETE",
+    })
+  }
+
+  async rescheduleAppointment(
+    appointmentId: string,
+    data: {
+      date: string
+      time: string
+    },
+  ) {
+    return this.request(`/patients/appointments/${appointmentId}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    })
+  }
+
+  // Get available doctors for booking
+  async getAvailableDoctors(specialization?: string) {
+    const params = specialization ? `?specialization=${encodeURIComponent(specialization)}` : ""
+    return this.request(`/doctors/available${params}`)
+  }
+
+  async getDoctorAvailability(doctorId: string, locationId: string, date: string) {
+    return this.request(`/doctors/${doctorId}/locations/${locationId}/availability?date=${date}`)
   }
 }
 
