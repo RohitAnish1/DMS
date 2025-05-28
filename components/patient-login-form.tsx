@@ -47,12 +47,9 @@ export function PatientLoginForm({ onSuccess, onError, isLoading, setIsLoading }
 
       if (result.success) {
         // Store authentication token if provided
-        if (result.data?.token) {
-          if (data.rememberMe) {
-            localStorage.setItem("patient_token", result.data.token)
-          } else {
-            sessionStorage.setItem("patient_token", result.data.token)
-          }
+        const token = (result.data as any)?.token
+        if (token) {
+          localStorage.setItem("token", token)
         }
         onSuccess()
       } else {

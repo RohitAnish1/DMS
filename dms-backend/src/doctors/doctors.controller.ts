@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Body } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, Query } from '@nestjs/common';
 import { DoctorsService } from './doctors.service';
 
 @Controller('doctors')
@@ -49,5 +49,10 @@ export class DoctorsController {
   async setAvailability(@Param('locationId') locationId: string, @Body() body: any) {
     // Stub: implement set availability logic here
     return this.doctorsService.setAvailability(locationId, body);
+  }
+
+  @Get('available')
+  async getAvailableDoctors(@Query('specialization') specialization?: string) {
+    return this.doctorsService.getAvailableDoctors(specialization);
   }
 }

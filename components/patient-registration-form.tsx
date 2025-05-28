@@ -47,7 +47,12 @@ export function PatientRegistrationForm({ onSuccess, onError, isLoading, setIsLo
       const result = await apiService.registerPatient(submitData)
 
       if (result.success) {
-        onSuccess()
+        // Store authentication token if provided
+        const token = (result.data as any)?.token;
+        if (token) {
+          localStorage.setItem("token", token);
+        }
+        onSuccess();
       } else {
         onError(result.message || "Registration failed")
       }

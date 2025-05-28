@@ -12,14 +12,33 @@ class ApiService {
     this.baseUrl = process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:3000"
   }
 
+  private getToken() {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("token")
+    }
+    return null
+  }
+
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
     try {
+      const token = this.getToken();
+      let baseHeaders: Record<string, string> = { "Content-Type": "application/json" };
+      // Merge headers from options, handling both plain objects and Headers instances
+      if (options.headers) {
+        if (options.headers instanceof Headers) {
+          (options.headers as Headers).forEach((value, key) => {
+            baseHeaders[key] = value;
+          });
+        } else {
+          baseHeaders = { ...baseHeaders, ...options.headers as Record<string, string> };
+        }
+      }
+      if (token) {
+        baseHeaders["Authorization"] = `Bearer ${token}`;
+      }
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
-        headers: {
-          "Content-Type": "application/json",
-          ...options.headers,
-        },
         ...options,
+        headers: baseHeaders,
       })
 
       const data = await response.json()

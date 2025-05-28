@@ -194,36 +194,38 @@ export function PatientProfileForm({ initialData, onSubmit, isLoading }: Patient
             <Label>Profile Photo</Label>
             <Card className="border-dashed border-2 border-gray-300">
               <CardContent className="p-6">
-                {photoPreview ? (
-                  <div className="relative">
-                    <img
-                      src={photoPreview || "/placeholder.svg"}
-                      alt="Profile preview"
-                      className="w-32 h-32 rounded-full mx-auto object-cover"
-                    />
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      className="absolute top-0 right-0 rounded-full w-6 h-6 p-0"
-                      onClick={removePhoto}
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="text-center">
-                    <User className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <div className="text-sm text-gray-600 mb-2">Click to upload or drag and drop</div>
-                    <div className="text-xs text-gray-500">PNG, JPG up to 5MB</div>
-                  </div>
-                )}
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handlePhotoUpload}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                />
+                <div className="relative flex flex-col items-center justify-center">
+                  {photoPreview ? (
+                    <div className="relative">
+                      <img
+                        src={photoPreview || "/placeholder.svg"}
+                        alt="Profile preview"
+                        className="w-32 h-32 rounded-full mx-auto object-cover"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute top-0 right-0 rounded-full w-6 h-6 p-0"
+                        onClick={removePhoto}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center cursor-pointer w-full">
+                      <User className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <div className="text-sm text-gray-600 mb-2">Click to upload or drag and drop</div>
+                      <div className="text-xs text-gray-500">PNG, JPG up to 5MB</div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handlePhotoUpload}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </div>

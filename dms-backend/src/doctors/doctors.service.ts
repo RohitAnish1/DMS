@@ -84,4 +84,18 @@ export class DoctorsService {
     // Stub: implement set availability logic here
     return { success: true, message: 'Availability set (stub)' };
   }
+
+  async getAvailableDoctors(specialization?: string) {
+    const where: any = {};
+    if (specialization) {
+      where.specialty = { contains: specialization, mode: 'insensitive' };
+    }
+    return this.prisma.doctor.findMany({
+      where,
+      include: {
+        user: true,
+        locations: true,
+      },
+    });
+  }
 }
