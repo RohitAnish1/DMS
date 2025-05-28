@@ -1,7 +1,5 @@
-import { Controller, Get, Param, Post, Body, Query, UseInterceptors, UploadedFile } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { Controller, Get, Param, Post, Body, Query } from '@nestjs/common';
 import { DoctorsService } from './doctors.service';
-import type { File as MulterFile } from 'multer';
 
 @Controller('doctors')
 export class DoctorsController {
@@ -45,22 +43,22 @@ export class DoctorsController {
   }
 
   @Post('profile')
-  @UseInterceptors(FileInterceptor('profilePhoto'))
-  async setupProfile(@UploadedFile() profilePhoto: MulterFile, @Body() body: any) {
-    // Debug: log received fields
-    console.log('Received profile setup:', { ...body, profilePhoto });
-    // Convert yearsOfExperience to number if present
-    if (body.yearsOfExperience) {
+  async setupProfile(@Body() body: any) {
+    // Convert yearsOfExperience to number if present and not empty
+    if (body.yearsOfExperience !== undefined && body.yearsOfExperience !== "") {
       body.yearsOfExperience = Number(body.yearsOfExperience);
+    } else {
+      body.yearsOfExperience = undefined;
     }
-    // Optionally: check required fields and return a clear error
     const requiredFields = ['specialization', 'yearsOfExperience', 'clinicName', 'address'];
     for (const field of requiredFields) {
-      if (!body[field]) {
+      if (!body[field] || body[field] === "") {
+        console.log('Missing or empty field:', field, 'Value:', body[field]);
         return { success: false, message: `${field} is required` };
       }
     }
-    return this.doctorsService.setupProfile({ ...body, profilePhoto });
+    console.log('Received profile setup:', body);
+    return this.doctorsService.setupProfile(body);
   }
 
   @Post('locations')

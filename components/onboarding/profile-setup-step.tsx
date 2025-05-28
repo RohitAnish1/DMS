@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent } from "@/components/ui/card"
-import { Upload, X } from "lucide-react"
 import { apiService } from "@/lib/api"
 
 interface ProfileData {
@@ -18,7 +17,6 @@ interface ProfileData {
   yearsOfExperience: number
   clinicName: string
   address: string
-  profilePhoto?: File
 }
 
 interface ProfileSetupStepProps {
@@ -30,8 +28,6 @@ interface ProfileSetupStepProps {
 
 export function ProfileSetupStep({ initialData, onComplete, onBack, isLoading }: ProfileSetupStepProps) {
   const [specializations, setSpecializations] = useState<string[]>([])
-  const [profilePhoto, setProfilePhoto] = useState<File | null>(null)
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null)
 
   const {
     register,
@@ -76,38 +72,8 @@ export function ProfileSetupStep({ initialData, onComplete, onBack, isLoading }:
     loadSpecializations()
   }, [])
 
-  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert("File size must be less than 5MB")
-        return
-      }
-
-      if (!file.type.startsWith("image/")) {
-        alert("Please select an image file")
-        return
-      }
-
-      setProfilePhoto(file)
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setPhotoPreview(e.target?.result as string)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
-
-  const removePhoto = () => {
-    setProfilePhoto(null)
-    setPhotoPreview(null)
-  }
-
   const onSubmit = (data: ProfileData) => {
-    onComplete({
-      ...data,
-      profilePhoto: profilePhoto || undefined,
-    })
+    onComplete(data)
   }
 
   return (
@@ -172,48 +138,6 @@ export function ProfileSetupStep({ initialData, onComplete, onBack, isLoading }:
               placeholder="City General Hospital"
             />
             {errors.clinicName && <p className="text-sm text-red-600">{errors.clinicName.message}</p>}
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <Label>Profile Photo</Label>
-            <Card className="border-dashed border-2 border-gray-300">
-              <CardContent className="p-6">
-                <div className="relative">
-                  {photoPreview ? (
-                    <div className="relative">
-                      <img
-                        src={photoPreview || "/placeholder.svg"}
-                        alt="Profile preview"
-                        className="w-32 h-32 rounded-full mx-auto object-cover"
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        className="absolute top-0 right-0 rounded-full w-6 h-6 p-0"
-                        onClick={removePhoto}
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="text-center">
-                      <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                      <div className="text-sm text-gray-600 mb-2">Click to upload or drag and drop</div>
-                      <div className="text-xs text-gray-500">PNG, JPG up to 5MB</div>
-                    </div>
-                  )}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handlePhotoUpload}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  />
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </div>

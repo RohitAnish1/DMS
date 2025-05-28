@@ -84,19 +84,12 @@ class ApiService {
     yearsOfExperience: number
     clinicName: string
     address: string
-    profilePhoto?: File
   }) {
-    const formData = new FormData()
-    Object.entries(data).forEach(([key, value]) => {
-      if (value !== undefined) {
-        formData.append(key, value as string | Blob)
-      }
-    })
-
+    // No FormData, just send JSON
     return this.request("/doctors/profile", {
       method: "POST",
-      headers: {}, // Remove Content-Type to let browser set it for FormData
-      body: formData,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
     })
   }
 
