@@ -47,7 +47,19 @@ export class DoctorsController {
   @Post('profile')
   @UseInterceptors(FileInterceptor('profilePhoto'))
   async setupProfile(@UploadedFile() profilePhoto: MulterFile, @Body() body: any) {
-    // Now you can access profilePhoto and other fields in body
+    // Debug: log received fields
+    console.log('Received profile setup:', { ...body, profilePhoto });
+    // Convert yearsOfExperience to number if present
+    if (body.yearsOfExperience) {
+      body.yearsOfExperience = Number(body.yearsOfExperience);
+    }
+    // Optionally: check required fields and return a clear error
+    const requiredFields = ['specialization', 'yearsOfExperience', 'clinicName', 'address'];
+    for (const field of requiredFields) {
+      if (!body[field]) {
+        return { success: false, message: `${field} is required` };
+      }
+    }
     return this.doctorsService.setupProfile({ ...body, profilePhoto });
   }
 
