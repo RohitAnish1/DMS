@@ -44,6 +44,7 @@ export function BookAppointmentDialog({ open, onOpenChange, onSuccess }: BookApp
   const [availableTimes, setAvailableTimes] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingTimes, setIsLoadingTimes] = useState(false)
+  const [doctorLoadError, setDoctorLoadError] = useState<string | null>(null)
 
   const {
     register,
@@ -59,7 +60,9 @@ export function BookAppointmentDialog({ open, onOpenChange, onSuccess }: BookApp
   const selectedDate = watch("date")
   const selectedTime = watch("time")
 
-  const selectedDoctor = doctors.find((d) => d.id === selectedDoctorId)
+  const selectedDoctor = selectedDoctorId
+    ? doctors.find((d) => String(d.id) === String(selectedDoctorId))
+    : undefined
 
   useEffect(() => {
     if (open) {
@@ -74,13 +77,33 @@ export function BookAppointmentDialog({ open, onOpenChange, onSuccess }: BookApp
   }, [selectedDoctorId, selectedLocationId, selectedDate])
 
   const loadDoctors = async () => {
+    setDoctorLoadError(null)
     try {
       const result = await apiService.getAvailableDoctors()
       if (result.success) {
-        setDoctors(result.data)
+        const data = result.data
+        if (Array.isArray(data)) {
+          setDoctors(data)
+        } else if (
+          data &&
+          typeof data === 'object' &&
+          'doctors' in data &&
+          Array.isArray((data as any).doctors)
+        ) {
+          setDoctors((data as any).doctors)
+        } else {
+          setDoctors([])
+          setDoctorLoadError("Unexpected response from server. Please try again later.")
+          console.warn("API returned unexpected doctors data:", data)
+        }
+      } else {
+        setDoctors([])
+        setDoctorLoadError(result.message || "Failed to load doctors. Please try again later.")
       }
     } catch (err) {
       console.error("Failed to load doctors:", err)
+      setDoctors([])
+      setDoctorLoadError("Failed to load doctors. Please try again later.")
     }
   }
 
@@ -92,7 +115,7 @@ export function BookAppointmentDialog({ open, onOpenChange, onSuccess }: BookApp
       const dateString = format(selectedDate, "yyyy-MM-dd")
       const result = await apiService.getDoctorAvailability(selectedDoctorId, selectedLocationId, dateString)
       if (result.success) {
-        setAvailableTimes(result.data.availableTimes || [])
+        setAvailableTimes((result.data as any).availableTimes || [])
       }
     } catch (err) {
       console.error("Failed to load available times:", err)
@@ -143,12 +166,15 @@ export function BookAppointmentDialog({ open, onOpenChange, onSuccess }: BookApp
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="doctorId">Doctor *</Label>
+            {doctorLoadError && (
+              <p className="text-sm text-red-600">{doctorLoadError}</p>
+            )}
             <Select value={selectedDoctorId} onValueChange={(value) => setValue("doctorId", value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select a doctor" />
               </SelectTrigger>
               <SelectContent>
-                {doctors.map((doctor) => (
+                {(Array.isArray(doctors) ? doctors : []).map((doctor) => (
                   <SelectItem key={doctor.id} value={doctor.id}>
                     <div>
                       <div className="font-medium">{doctor.name}</div>

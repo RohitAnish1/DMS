@@ -10,6 +10,11 @@ export class DoctorsController {
     return this.doctorsService.findAll();
   }
 
+  @Get('available')
+  async getAvailableDoctors(@Query('specialization') specialization?: string) {
+    return this.doctorsService.getAvailableDoctors(specialization);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     const doctorId = Number(id);
@@ -53,10 +58,5 @@ export class DoctorsController {
   async setAvailability(@Param('locationId') locationId: string, @Body() body: any) {
     // Stub: implement set availability logic here
     return this.doctorsService.setAvailability(locationId, body);
-  }
-
-  @Get('available')
-  async getAvailableDoctors(@Query('specialization') specialization?: string) {
-    return this.doctorsService.getAvailableDoctors(specialization);
   }
 }

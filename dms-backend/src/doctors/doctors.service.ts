@@ -98,6 +98,7 @@ export class DoctorsService {
           locations: true,
         },
       });
+      console.log('Fetched doctors:', doctors); // Log the fetched doctors
       return { success: true, data: doctors };
     } catch (error) {
       return { success: false, message: error.message || 'Failed to fetch doctors' };
