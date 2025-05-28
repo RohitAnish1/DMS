@@ -86,16 +86,21 @@ export class DoctorsService {
   }
 
   async getAvailableDoctors(specialization?: string) {
-    const where: any = {};
-    if (specialization) {
-      where.specialty = { contains: specialization, mode: 'insensitive' };
+    try {
+      const where: any = {};
+      if (specialization) {
+        where.specialty = { contains: specialization, mode: 'insensitive' };
+      }
+      const doctors = await this.prisma.doctor.findMany({
+        where,
+        include: {
+          user: true,
+          locations: true,
+        },
+      });
+      return { success: true, data: doctors };
+    } catch (error) {
+      return { success: false, message: error.message || 'Failed to fetch doctors' };
     }
-    return this.prisma.doctor.findMany({
-      where,
-      include: {
-        user: true,
-        locations: true,
-      },
-    });
   }
 }
