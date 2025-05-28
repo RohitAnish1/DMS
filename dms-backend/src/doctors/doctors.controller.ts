@@ -1,5 +1,7 @@
-import { Controller, Get, Param, Post, Body, Query } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, Query, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { DoctorsService } from './doctors.service';
+import type { File as MulterFile } from 'multer';
 
 @Controller('doctors')
 export class DoctorsController {
@@ -43,9 +45,10 @@ export class DoctorsController {
   }
 
   @Post('profile')
-  async setupProfile(@Body() body: any) {
-    // Stub: implement doctor profile setup logic here
-    return this.doctorsService.setupProfile(body);
+  @UseInterceptors(FileInterceptor('profilePhoto'))
+  async setupProfile(@UploadedFile() profilePhoto: MulterFile, @Body() body: any) {
+    // Now you can access profilePhoto and other fields in body
+    return this.doctorsService.setupProfile({ ...body, profilePhoto });
   }
 
   @Post('locations')

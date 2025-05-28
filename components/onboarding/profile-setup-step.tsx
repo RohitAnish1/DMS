@@ -48,7 +48,11 @@ export function ProfileSetupStep({ initialData, onComplete, onBack, isLoading }:
   useEffect(() => {
     const loadSpecializations = async () => {
       const result = await apiService.getSpecializations()
-      if (result.success && result.data) {
+      if (
+        result.success &&
+        Array.isArray(result.data) &&
+        result.data.every((s) => typeof s === "string")
+      ) {
         setSpecializations(result.data)
       } else {
         // Fallback specializations
@@ -117,11 +121,15 @@ export function ProfileSetupStep({ initialData, onComplete, onBack, isLoading }:
                 <SelectValue placeholder="Select your specialization" />
               </SelectTrigger>
               <SelectContent>
-                {specializations.map((spec) => (
-                  <SelectItem key={spec} value={spec}>
-                    {spec}
-                  </SelectItem>
-                ))}
+                {Array.isArray(specializations) && specializations.length > 0 ? (
+                  specializations.map((spec) => (
+                    <SelectItem key={spec} value={spec}>
+                      {spec}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <div className="text-gray-500 px-4 py-2">No specializations available</div>
+                )}
               </SelectContent>
             </Select>
             {errors.specialization && <p className="text-sm text-red-600">{errors.specialization.message}</p>}
@@ -172,36 +180,38 @@ export function ProfileSetupStep({ initialData, onComplete, onBack, isLoading }:
             <Label>Profile Photo</Label>
             <Card className="border-dashed border-2 border-gray-300">
               <CardContent className="p-6">
-                {photoPreview ? (
-                  <div className="relative">
-                    <img
-                      src={photoPreview || "/placeholder.svg"}
-                      alt="Profile preview"
-                      className="w-32 h-32 rounded-full mx-auto object-cover"
-                    />
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      className="absolute top-0 right-0 rounded-full w-6 h-6 p-0"
-                      onClick={removePhoto}
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="text-center">
-                    <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <div className="text-sm text-gray-600 mb-2">Click to upload or drag and drop</div>
-                    <div className="text-xs text-gray-500">PNG, JPG up to 5MB</div>
-                  </div>
-                )}
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handlePhotoUpload}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                />
+                <div className="relative">
+                  {photoPreview ? (
+                    <div className="relative">
+                      <img
+                        src={photoPreview || "/placeholder.svg"}
+                        alt="Profile preview"
+                        className="w-32 h-32 rounded-full mx-auto object-cover"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute top-0 right-0 rounded-full w-6 h-6 p-0"
+                        onClick={removePhoto}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="text-center">
+                      <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <div className="text-sm text-gray-600 mb-2">Click to upload or drag and drop</div>
+                      <div className="text-xs text-gray-500">PNG, JPG up to 5MB</div>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoUpload}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                </div>
               </CardContent>
             </Card>
           </div>
