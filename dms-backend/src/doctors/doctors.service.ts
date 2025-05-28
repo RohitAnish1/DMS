@@ -98,8 +98,17 @@ export class DoctorsService {
           locations: true,
         },
       });
-      console.log('Fetched doctors:', doctors); // Log the fetched doctors
-      return { success: true, data: doctors };
+      // Format doctors for frontend
+      const formatted = doctors.map((doc) => ({
+        id: String(doc.id),
+        name: doc.user?.name || '',
+        specialization: doc.specialty || '',
+        locations: (doc.locations || []).map((loc) => ({
+          id: String(loc.id),
+          address: loc.address || '',
+        })),
+      }));
+      return { success: true, data: formatted };
     } catch (error) {
       return { success: false, message: error.message || 'Failed to fetch doctors' };
     }
