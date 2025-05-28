@@ -12,7 +12,11 @@ export class DoctorsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.doctorsService.findOne(Number(id));
+    const doctorId = Number(id);
+    if (!doctorId || isNaN(doctorId)) {
+      return { success: false, message: 'Invalid doctor id' };
+    }
+    return this.doctorsService.findOne(doctorId);
   }
 
   @Post('complete-onboarding')
