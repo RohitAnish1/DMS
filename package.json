@@ -70,7 +70,6 @@
     "zod": "^3.24.1"
   },
   
-  // Development Dependencies - Tools for development and testing
   "devDependencies": {
     "@types/node": "^22",
     "@types/react": "^19",
