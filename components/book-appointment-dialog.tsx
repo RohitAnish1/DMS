@@ -1,3 +1,7 @@
+// Book Appointment Dialog Component
+// This component provides a modal interface for patients to book new appointments
+// It includes doctor selection, location selection, date/time picking, and form validation
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -14,14 +18,16 @@ import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { apiService } from "@/lib/api"
 
+// TypeScript interface for booking form data
 interface BookingData {
-  doctorId: string
-  locationId: string
-  date: Date | undefined
-  time: string
-  reason: string
+  doctorId: string      // Selected doctor's ID
+  locationId: string    // Selected location's ID
+  date: Date | undefined // Selected appointment date
+  time: string          // Selected appointment time
+  reason: string        // Reason for the appointment
 }
 
+// TypeScript interface for doctor data with locations
 interface Doctor {
   id: string
   name: string
@@ -33,19 +39,23 @@ interface Doctor {
   }>
 }
 
+// Props interface for the dialog component
 interface BookAppointmentDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onSuccess: () => void
+  open: boolean                    // Controls dialog visibility
+  onOpenChange: (open: boolean) => void  // Callback to handle dialog state changes
+  onSuccess: () => void           // Callback called when appointment is successfully booked
 }
 
+// Main Book Appointment Dialog Component
 export function BookAppointmentDialog({ open, onOpenChange, onSuccess }: BookAppointmentDialogProps) {
+  // State management for the booking process
   const [doctors, setDoctors] = useState<Doctor[]>([])
   const [availableTimes, setAvailableTimes] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingTimes, setIsLoadingTimes] = useState(false)
   const [doctorLoadError, setDoctorLoadError] = useState<string | null>(null)
 
+  // React Hook Form setup for form management and validation
   const {
     register,
     handleSubmit,
@@ -55,33 +65,40 @@ export function BookAppointmentDialog({ open, onOpenChange, onSuccess }: BookApp
     formState: { errors },
   } = useForm<BookingData>()
 
+  // Watch form fields for reactive updates
   const selectedDoctorId = watch("doctorId")
   const selectedLocationId = watch("locationId")
   const selectedDate = watch("date")
   const selectedTime = watch("time")
 
+  // Find selected doctor from the doctors array
   const selectedDoctor = selectedDoctorId
     ? doctors.find((d) => String(d.id) === String(selectedDoctorId))
     : undefined
 
+  // Load doctors when dialog opens
   useEffect(() => {
     if (open) {
       loadDoctors()
     }
   }, [open])
 
+  // Load available times when doctor, location, and date are selected
   useEffect(() => {
     if (selectedDoctorId && selectedLocationId && selectedDate) {
       loadAvailableTimes()
     }
   }, [selectedDoctorId, selectedLocationId, selectedDate])
 
+  // Fetch available doctors from the API
+  // This function loads all doctors that accept appointments
   const loadDoctors = async () => {
     setDoctorLoadError(null)
     try {
       const result = await apiService.getAvailableDoctors()
       if (result.success) {
         const data = result.data
+        // Handle different response formats from the API
         if (Array.isArray(data)) {
           setDoctors(data)
         } else if (
@@ -101,30 +118,38 @@ export function BookAppointmentDialog({ open, onOpenChange, onSuccess }: BookApp
         setDoctorLoadError(result.message || "Failed to load doctors. Please try again later.")
       }
     } catch (err) {
-      console.error("Failed to load doctors:", err)
       setDoctors([])
-      setDoctorLoadError("Failed to load doctors. Please try again later.")
+      setDoctorLoadError("Failed to load doctors. Please check your connection and try again.")
+      console.error("Error loading doctors:", err)
     }
   }
 
+  // Fetch available appointment times for selected doctor, location, and date
+  // This function gets time slots that are available for booking
   const loadAvailableTimes = async () => {
-    if (!selectedDoctorId || !selectedLocationId || !selectedDate) return
-
     setIsLoadingTimes(true)
     try {
-      const dateString = format(selectedDate, "yyyy-MM-dd")
-      const result = await apiService.getDoctorAvailability(selectedDoctorId, selectedLocationId, dateString)
+      const result = await apiService.getAvailableSlots(
+        selectedDoctorId!,
+        selectedLocationId!,
+        selectedDate!.toISOString()
+      )
       if (result.success) {
-        setAvailableTimes((result.data as any).availableTimes || [])
+        setAvailableTimes(result.data || [])
+      } else {
+        setAvailableTimes([])
+        console.warn("Failed to load available times:", result.message)
       }
     } catch (err) {
-      console.error("Failed to load available times:", err)
       setAvailableTimes([])
+      console.error("Error loading available times:", err)
     } finally {
       setIsLoadingTimes(false)
     }
   }
 
+  // Handle form submission for booking an appointment
+  // This function is called when the user submits the booking form
   const onSubmit = async (data: BookingData) => {
     if (!data.date) return
 
@@ -149,6 +174,8 @@ export function BookAppointmentDialog({ open, onOpenChange, onSuccess }: BookApp
     }
   }
 
+  // Handle dialog close event
+  // This function resets the form and available times, and closes the dialog
   const handleClose = () => {
     reset()
     setAvailableTimes([])

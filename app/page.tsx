@@ -1,3 +1,6 @@
+// Main Landing Page Component for the DMS (Doctor Management System)
+// This is the homepage that displays the application's features and provides navigation to different user types
+
 "use client"
 
 import { useRouter } from "next/navigation"
@@ -10,6 +13,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 export default function HomePage() {
   const router = useRouter()
 
+  // Core features of the DMS application displayed on the landing page
   const features = [
     {
       icon: Calendar,
@@ -33,6 +37,7 @@ export default function HomePage() {
     },
   ]
 
+  // Benefits/value propositions shown to potential users
   const benefits = [
     "Reduce no-shows by up to 40% with automated reminders",
     "Save 2+ hours daily on administrative tasks",
@@ -44,17 +49,21 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
-      {/* Header */}
+      {/* Navigation Header - Sticky header with branding and user access options */}
       <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
+            {/* Brand Logo and Name */}
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                 <Calendar className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold text-gray-900">Schedula</span>
             </div>
+            
+            {/* User Authentication and Registration Options */}
             <div className="flex items-center space-x-4">
+              {/* Sign In Dropdown for different user types */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost">Sign In</Button>
@@ -64,6 +73,8 @@ export default function HomePage() {
                   <DropdownMenuItem onClick={() => router.push("/doctor/login")}>Doctor Login</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              
+              {/* Registration Dropdown for different user types */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button>Get Started</Button>
@@ -78,20 +89,27 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Hero Section */}
+      {/* Hero Section - Main promotional content and call-to-action */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto text-center">
+          {/* Trust Badge */}
           <Badge variant="secondary" className="mb-4">
             Trusted by 10,000+ Healthcare Professionals
           </Badge>
+          
+          {/* Main Headline */}
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
             Streamline Your
             <span className="text-blue-600 block">Medical Practice</span>
           </h1>
+          
+          {/* Value Proposition */}
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
             Schedula is the all-in-one practice management platform that helps doctors manage appointments, patients,
             and availability, while providing patients with easy access to healthcare services.
           </p>
+          
+          {/* Primary Call-to-Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" onClick={() => router.push("/onboarding")} className="text-lg px-8 py-3">
               Onboard as Doctor
@@ -107,6 +125,8 @@ export default function HomePage() {
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           </div>
+          
+          {/* Demo Button */}
           <div className="flex justify-center mt-4">
             <Button size="lg" variant="ghost" className="text-lg px-8 py-3">
               Watch Demo
@@ -115,9 +135,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Features Section - Showcases the core functionality of the DMS */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
+          {/* Section Header */}
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               Everything You Need to Run Your Practice
@@ -128,10 +149,12 @@ export default function HomePage() {
             </p>
           </div>
 
+          {/* Feature Cards Grid - Displays key features with icons and descriptions */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (
               <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-shadow">
                 <CardHeader className="text-center">
+                  {/* Feature Icon */}
                   <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                     <feature.icon className="w-6 h-6 text-blue-600" />
                   </div>

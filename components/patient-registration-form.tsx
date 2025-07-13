@@ -1,3 +1,7 @@
+// Patient Registration Form Component
+// This component handles patient account creation with comprehensive form validation
+// It collects personal information, contact details, and medical history
+
 "use client"
 
 import { useForm } from "react-hook-form"
@@ -8,25 +12,29 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { apiService } from "@/lib/api"
 
+// TypeScript interface for patient registration form data
 interface RegistrationData {
   fullName: string
   email: string
   password: string
-  confirmPassword: string
+  confirmPassword: string  // For password confirmation validation
   phone: string
   dateOfBirth: string
   gender: string
   address: string
 }
 
+// Props interface for the component
 interface PatientRegistrationFormProps {
-  onSuccess: () => void
-  onError: (error: string) => void
-  isLoading: boolean
-  setIsLoading: (loading: boolean) => void
+  onSuccess: () => void                      // Callback for successful registration
+  onError: (error: string) => void          // Callback for registration errors
+  isLoading: boolean                        // Loading state from parent
+  setIsLoading: (loading: boolean) => void  // Function to update loading state
 }
 
+// Main Patient Registration Form Component
 export function PatientRegistrationForm({ onSuccess, onError, isLoading, setIsLoading }: PatientRegistrationFormProps) {
+  // React Hook Form setup with validation
   const {
     register,
     handleSubmit,
@@ -35,14 +43,18 @@ export function PatientRegistrationForm({ onSuccess, onError, isLoading, setIsLo
     formState: { errors },
   } = useForm<RegistrationData>()
 
+  // Watch form fields for reactive validation
   const password = watch("password")
   const selectedGender = watch("gender")
 
+  // Handle form submission
+  // This function processes the registration data and calls the API
   const onSubmit = async (data: RegistrationData) => {
     setIsLoading(true)
     onError("")
 
     try {
+      // Remove confirmPassword from submission data
       const { confirmPassword, ...submitData } = data
       const result = await apiService.registerPatient(submitData)
 
@@ -63,6 +75,7 @@ export function PatientRegistrationForm({ onSuccess, onError, isLoading, setIsLo
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      {/* Full Name Field */}
       <div className="space-y-2">
         <Label htmlFor="fullName">Full Name *</Label>
         <Input
@@ -79,7 +92,9 @@ export function PatientRegistrationForm({ onSuccess, onError, isLoading, setIsLo
         {errors.fullName && <p className="text-sm text-red-600">{errors.fullName.message}</p>}
       </div>
 
+      {/* Email and Phone Fields Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Email Field */}
         <div className="space-y-2">
           <Label htmlFor="email">Email Address *</Label>
           <Input
@@ -97,6 +112,7 @@ export function PatientRegistrationForm({ onSuccess, onError, isLoading, setIsLo
           {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
         </div>
 
+        {/* Phone Field */}
         <div className="space-y-2">
           <Label htmlFor="phone">Phone Number *</Label>
           <Input
@@ -105,7 +121,7 @@ export function PatientRegistrationForm({ onSuccess, onError, isLoading, setIsLo
             {...register("phone", {
               required: "Phone number is required",
               pattern: {
-                value: /^[+]?[1-9][\d]{0,15}$/,
+                value: /^[+]?[1-9][\d\s\-\(\)]{8,}$/,
                 message: "Invalid phone number",
               },
             })}
@@ -115,7 +131,9 @@ export function PatientRegistrationForm({ onSuccess, onError, isLoading, setIsLo
         </div>
       </div>
 
+      {/* Password Fields Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Password Field */}
         <div className="space-y-2">
           <Label htmlFor="password">Password *</Label>
           <Input
@@ -129,14 +147,15 @@ export function PatientRegistrationForm({ onSuccess, onError, isLoading, setIsLo
               },
               pattern: {
                 value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-                message: "Password must contain at least one uppercase letter, one lowercase letter, and one number",
+                message: "Password must contain uppercase, lowercase, and number",
               },
             })}
-            placeholder="••••••••"
+            placeholder="Enter your password"
           />
           {errors.password && <p className="text-sm text-red-600">{errors.password.message}</p>}
         </div>
 
+        {/* Confirm Password Field */}
         <div className="space-y-2">
           <Label htmlFor="confirmPassword">Confirm Password *</Label>
           <Input
@@ -146,13 +165,15 @@ export function PatientRegistrationForm({ onSuccess, onError, isLoading, setIsLo
               required: "Please confirm your password",
               validate: (value) => value === password || "Passwords do not match",
             })}
-            placeholder="••••••••"
+            placeholder="Confirm your password"
           />
           {errors.confirmPassword && <p className="text-sm text-red-600">{errors.confirmPassword.message}</p>}
         </div>
       </div>
 
+      {/* Date of Birth and Gender Fields Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Date of Birth Field */}
         <div className="space-y-2">
           <Label htmlFor="dateOfBirth">Date of Birth *</Label>
           <Input
@@ -161,19 +182,19 @@ export function PatientRegistrationForm({ onSuccess, onError, isLoading, setIsLo
             {...register("dateOfBirth", {
               required: "Date of birth is required",
               validate: (value) => {
+                const date = new Date(value)
                 const today = new Date()
-                const birthDate = new Date(value)
-                const age = today.getFullYear() - birthDate.getFullYear()
-                return (age >= 0 && age <= 120) || "Please enter a valid date of birth"
+                return date < today || "Date of birth must be in the past"
               },
             })}
           />
           {errors.dateOfBirth && <p className="text-sm text-red-600">{errors.dateOfBirth.message}</p>}
         </div>
 
+        {/* Gender Selection Field */}
         <div className="space-y-2">
           <Label htmlFor="gender">Gender *</Label>
-          <Select value={selectedGender} onValueChange={(value) => setValue("gender", value)}>
+          <Select onValueChange={(value) => setValue("gender", value)} value={selectedGender}>
             <SelectTrigger>
               <SelectValue placeholder="Select gender" />
             </SelectTrigger>
@@ -188,6 +209,7 @@ export function PatientRegistrationForm({ onSuccess, onError, isLoading, setIsLo
         </div>
       </div>
 
+      {/* Address Field */}
       <div className="space-y-2">
         <Label htmlFor="address">Address *</Label>
         <Textarea
@@ -199,13 +221,14 @@ export function PatientRegistrationForm({ onSuccess, onError, isLoading, setIsLo
               message: "Address must be at least 10 characters",
             },
           })}
-          placeholder="123 Main Street, City, State 12345"
+          placeholder="123 Main Street, City, State, ZIP"
           rows={3}
         />
         {errors.address && <p className="text-sm text-red-600">{errors.address.message}</p>}
       </div>
 
-      <Button type="submit" disabled={isLoading} className="w-full">
+      {/* Submit Button */}
+      <Button type="submit" className="w-full" disabled={isLoading}>
         {isLoading ? "Creating Account..." : "Create Account"}
       </Button>
     </form>

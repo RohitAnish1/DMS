@@ -1,3 +1,10 @@
+// Doctor Onboarding Page - Multi-step registration process for doctors
+// This page guides doctors through a complete registration process including:
+// 1. Basic registration (credentials, contact info)
+// 2. Profile setup (specialization, experience, clinic details)
+// 3. Availability setup (locations, schedules, exceptions)
+// 4. Review and confirmation
+
 "use client"
 
 import { useState } from "react"
@@ -11,32 +18,40 @@ import { AvailabilityStep } from "@/components/onboarding/availability-step"
 import { ReviewStep } from "@/components/onboarding/review-step"
 import { apiService } from "@/lib/api"
 
+// TypeScript interface for complete onboarding data structure
 interface OnboardingData {
+  // Step 1: Basic registration information
   registration: {
     email: string
     password: string
     fullName: string
     phone: string
-    medicalRegistrationNumber: string
+    medicalRegistrationNumber: string  // Doctor's license number
   }
+  
+  // Step 2: Professional profile information
   profile: {
     specialization: string
     yearsOfExperience: number
     clinicName: string
     address: string
-    profilePhoto?: File
+    profilePhoto?: File  // Optional profile image
   }
+  
+  // Step 3: Practice locations and availability
   locations: Array<{
     id?: string
     name: string
     address: string
     phone: string
+    // Weekly schedule for this location
     weeklySchedule: Array<{
       day: string
       startTime: string
       endTime: string
       isAvailable: boolean
     }>
+    // Special exceptions and time-off
     exceptions: Array<{
       date: string
       type: "leave" | "special"
@@ -47,16 +62,32 @@ interface OnboardingData {
   }>
 }
 
+// Onboarding step configuration
 const steps = [
-  { id: 1, title: "Registration", description: "Create your account" },
-  { id: 2, title: "Profile Setup", description: "Complete your profile" },
-  { id: 3, title: "Availability", description: "Set your schedule" },
-  { id: 4, title: "Review", description: "Review and submit" },
+  {
+    title: "Registration",
+    description: "Create your account and verify your credentials",
+  },
+  {
+    title: "Profile Setup",
+    description: "Tell us about your practice and specialization",
+  },
+  {
+    title: "Availability",
+    description: "Set up your locations and schedule",
+  },
+  {
+    title: "Review",
+    description: "Review and confirm your information",
+  },
 ]
 
-export default function DoctorOnboarding() {
+// Main Doctor Onboarding Page Component
+export default function DoctorOnboardingPage() {
   const router = useRouter()
-  const [currentStep, setCurrentStep] = useState(1)
+  
+  // State management for the onboarding process
+  const [currentStep, setCurrentStep] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [onboardingData, setOnboardingData] = useState<OnboardingData>({
@@ -76,191 +107,147 @@ export default function DoctorOnboarding() {
     locations: [],
   })
 
-  const progress = (currentStep / steps.length) * 100
-
+  // Handle step completion and data updates
+  // This function is called when each step is completed
   const handleStepComplete = (stepData: any) => {
     setError(null)
-
-    switch (currentStep) {
-      case 1:
-        setOnboardingData((prev) => ({ ...prev, registration: stepData }))
-        break
-      case 2:
-        setOnboardingData((prev) => ({ ...prev, profile: stepData }))
-        break
-      case 3:
-        setOnboardingData((prev) => ({ ...prev, locations: stepData }))
-        break
-    }
-
-    if (currentStep < steps.length) {
+    
+    // Update the onboarding data with the step's data
+    setOnboardingData((prev) => ({
+      ...prev,
+      ...stepData,
+    }))
+    
+    // Move to next step or complete onboarding
+    if (currentStep < steps.length - 1) {
       setCurrentStep((prev) => prev + 1)
+    } else {
+      // Final step - submit all data
+      handleSubmitOnboarding({
+        ...onboardingData,
+        ...stepData,
+      })
     }
   }
 
-  const handleBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep((prev) => prev - 1)
-    }
-  }
-
-  const handleEdit = (step: number) => {
-    setCurrentStep(step)
-  }
-
-  const handleSubmit = async () => {
+  // Submit complete onboarding data to the backend
+  // This function sends all collected data to create the doctor account
+  const handleSubmitOnboarding = async (data: OnboardingData) => {
     setIsLoading(true)
     setError(null)
-
+    
     try {
-      // Register doctor
-      const registrationResult = await apiService.registerDoctor(onboardingData.registration)
-      if (!registrationResult.success) {
-        throw new Error(registrationResult.message)
-      }
-
-      // Setup profile
-      const profileResult = await apiService.setupProfile(onboardingData.profile)
-      if (!profileResult.success) {
-        throw new Error(profileResult.message)
-      }
-
-      // Add locations and availability
-      for (const location of onboardingData.locations) {
-        const locationResult = await apiService.addPracticeLocation({
-          name: location.name,
-          address: location.address,
-          phone: location.phone,
-        })
-
-        if (!locationResult.success) {
-          throw new Error(locationResult.message)
+      const result = await apiService.completeDoctorOnboarding(data)
+      
+      if (result.success) {
+        // Store authentication token if provided
+        if (result.data?.token) {
+          localStorage.setItem("token", result.data.token)
         }
-
-        const locationId = locationResult.data.id
-
-        const availabilityResult = await apiService.setAvailability(locationId, {
-          weeklySchedule: location.weeklySchedule,
-          exceptions: location.exceptions,
-        })
-
-        if (!availabilityResult.success) {
-          throw new Error(availabilityResult.message)
-        }
+        
+        // Redirect to doctor dashboard
+        router.push("/doctor/dashboard")
+      } else {
+        setError(result.message || "Failed to complete onboarding")
       }
-
-      // Complete onboarding
-      const completeResult = await apiService.completeOnboarding()
-      if (!completeResult.success) {
-        throw new Error(completeResult.message)
-      }
-
-      // Redirect to dashboard
-      router.push("/dashboard/profile")
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred during onboarding")
+      setError("An unexpected error occurred. Please try again.")
+      console.error("Onboarding error:", err)
     } finally {
       setIsLoading(false)
     }
   }
 
-  const renderStep = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <RegistrationStep
-            initialData={onboardingData.registration}
-            onComplete={handleStepComplete}
-            isLoading={isLoading}
-          />
-        )
-      case 2:
-        return (
-          <ProfileSetupStep
-            initialData={onboardingData.profile}
-            onComplete={handleStepComplete}
-            onBack={handleBack}
-            isLoading={isLoading}
-          />
-        )
-      case 3:
-        return (
-          <AvailabilityStep
-            initialData={onboardingData.locations}
-            onComplete={handleStepComplete}
-            onBack={handleBack}
-            isLoading={isLoading}
-          />
-        )
-      case 4:
-        return (
-          <ReviewStep
-            data={onboardingData}
-            onEdit={handleEdit}
-            onSubmit={handleSubmit}
-            onBack={handleBack}
-            isLoading={isLoading}
-          />
-        )
-      default:
-        return null
+  // Navigate to previous step
+  const handlePreviousStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep((prev) => prev - 1)
     }
   }
 
+  // Calculate progress percentage for progress bar
+  const progress = ((currentStep + 1) / steps.length) * 100
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-center mb-2">Welcome to Schedula</h1>
-          <p className="text-gray-600 text-center mb-6">Complete your onboarding to start managing your practice</p>
-
-          <div className="mb-6">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium">
-                Step {currentStep} of {steps.length}
-              </span>
-              <span className="text-sm text-gray-500">{Math.round(progress)}% complete</span>
-            </div>
-            <Progress value={progress} className="h-2" />
-          </div>
-
-          <div className="flex justify-center space-x-8 mb-8">
-            {steps.map((step) => (
-              <div
-                key={step.id}
-                className={`text-center ${step.id <= currentStep ? "text-blue-600" : "text-gray-400"}`}
-              >
-                <div
-                  className={`w-8 h-8 rounded-full mx-auto mb-2 flex items-center justify-center text-sm font-medium ${
-                    step.id < currentStep
-                      ? "bg-blue-600 text-white"
-                      : step.id === currentStep
-                        ? "bg-blue-100 text-blue-600 border-2 border-blue-600"
-                        : "bg-gray-200 text-gray-400"
-                  }`}
-                >
-                  {step.id < currentStep ? "✓" : step.id}
-                </div>
-                <div className="text-xs font-medium">{step.title}</div>
-                <div className="text-xs text-gray-500">{step.description}</div>
-              </div>
-            ))}
-          </div>
+    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
+        {/* Onboarding Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Doctor Onboarding</h1>
+          <p className="mt-2 text-gray-600">
+            Complete your registration to start managing your practice with Schedula
+          </p>
         </div>
 
-        {error && (
-          <Alert className="mb-6 border-red-200 bg-red-50">
-            <AlertDescription className="text-red-800">{error}</AlertDescription>
-          </Alert>
-        )}
+        {/* Progress Indicator */}
+        <div className="mb-8">
+          <div className="flex justify-between text-sm text-gray-600 mb-2">
+            <span>Step {currentStep + 1} of {steps.length}</span>
+            <span>{Math.round(progress)}% Complete</span>
+          </div>
+          <Progress value={progress} className="h-2" />
+        </div>
 
-        <Card>
+        {/* Current Step Card */}
+        <Card className="mb-8">
           <CardHeader>
-            <CardTitle>{steps[currentStep - 1]?.title}</CardTitle>
-            <CardDescription>{steps[currentStep - 1]?.description}</CardDescription>
+            <CardTitle>{steps[currentStep].title}</CardTitle>
+            <CardDescription>{steps[currentStep].description}</CardDescription>
           </CardHeader>
-          <CardContent>{renderStep()}</CardContent>
+          <CardContent>
+            {/* Error Alert */}
+            {error && (
+              <Alert className="mb-6" variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
+            {/* Step Content - Renders different components based on current step */}
+            {currentStep === 0 && (
+              <RegistrationStep
+                data={onboardingData.registration}
+                onComplete={handleStepComplete}
+                isLoading={isLoading}
+              />
+            )}
+            {currentStep === 1 && (
+              <ProfileSetupStep
+                data={onboardingData.profile}
+                onComplete={handleStepComplete}
+                onPrevious={handlePreviousStep}
+                isLoading={isLoading}
+              />
+            )}
+            {currentStep === 2 && (
+              <AvailabilityStep
+                data={onboardingData.locations}
+                onComplete={handleStepComplete}
+                onPrevious={handlePreviousStep}
+                isLoading={isLoading}
+              />
+            )}
+            {currentStep === 3 && (
+              <ReviewStep
+                data={onboardingData}
+                onComplete={handleStepComplete}
+                onPrevious={handlePreviousStep}
+                isLoading={isLoading}
+              />
+            )}
+          </CardContent>
         </Card>
+
+        {/* Step Navigation Indicators */}
+        <div className="flex justify-center space-x-2">
+          {steps.map((step, index) => (
+            <div
+              key={index}
+              className={`w-3 h-3 rounded-full ${
+                index <= currentStep ? "bg-blue-600" : "bg-gray-300"
+              }`}
+            />
+          ))}
+        </div>
       </div>
     </div>
   )

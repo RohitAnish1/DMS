@@ -1,3 +1,7 @@
+// Patient Appointments Page - Main page for managing patient appointments
+// This page allows patients to view, book, cancel, and reschedule their appointments
+// It includes appointment history, filtering, and booking functionality
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -11,6 +15,7 @@ import { apiService } from "@/lib/api"
 import { Skeleton } from "@/components/ui/skeleton"
 import { BookAppointmentDialog } from "@/components/book-appointment-dialog"
 
+// TypeScript interface for appointment data structure
 interface Appointment {
   id: string
   doctorName: string
@@ -18,21 +23,26 @@ interface Appointment {
   locationName: string
   date: string
   time: string
-  status: "upcoming" | "completed" | "cancelled"
+  status: "upcoming" | "completed" | "cancelled"  // Appointment status types
   reason: string
-  notes?: string
+  notes?: string  // Optional appointment notes
 }
 
+// Main Patient Appointments Page Component
 export default function PatientAppointmentsPage() {
+  // State management for appointments and UI
   const [appointments, setAppointments] = useState<Appointment[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showBookDialog, setShowBookDialog] = useState(false)
 
+  // Load appointments when component mounts
   useEffect(() => {
     loadAppointments()
   }, [])
 
+  // Fetch appointments from the API
+  // This function retrieves all appointments for the current patient
   const loadAppointments = async () => {
     try {
       const result = await apiService.getPatientAppointments()
@@ -48,10 +58,13 @@ export default function PatientAppointmentsPage() {
     }
   }
 
+  // Handle appointment cancellation
+  // Updates the appointment status to cancelled and refreshes the UI
   const handleCancelAppointment = async (appointmentId: string) => {
     try {
       const result = await apiService.cancelAppointment(appointmentId)
       if (result.success) {
+        // Update local state to reflect the cancellation
         setAppointments((prev) =>
           prev.map((apt) => (apt.id === appointmentId ? { ...apt, status: "cancelled" as const } : apt)),
         )
@@ -63,10 +76,13 @@ export default function PatientAppointmentsPage() {
     }
   }
 
+  // Handle appointment rescheduling
+  // Updates the appointment date and time and refreshes the UI
   const handleRescheduleAppointment = async (appointmentId: string, date: string, time: string) => {
     try {
       const result = await apiService.rescheduleAppointment(appointmentId, { date, time })
       if (result.success) {
+        // Update local state with new date and time
         setAppointments((prev) => prev.map((apt) => (apt.id === appointmentId ? { ...apt, date, time } : apt)))
       } else {
         setError(result.message || "Failed to reschedule appointment")
@@ -76,15 +92,19 @@ export default function PatientAppointmentsPage() {
     }
   }
 
+  // Handle successful appointment booking
+  // Refreshes the appointments list and closes the booking dialog
   const handleBookAppointment = () => {
     loadAppointments() // Refresh the list after booking
     setShowBookDialog(false)
   }
 
+  // Loading state UI - Shows skeleton loaders while data is being fetched
   if (isLoading) {
     return (
       <PatientDashboardLayout>
         <div className="space-y-6">
+          {/* Loading skeleton for page header */}
           <div className="flex justify-between items-center">
             <div>
               <Skeleton className="h-8 w-48 mb-2" />
@@ -92,6 +112,8 @@ export default function PatientAppointmentsPage() {
             </div>
             <Skeleton className="h-10 w-32" />
           </div>
+          
+          {/* Loading skeleton for appointment cards */}
           <div className="space-y-4">
             {[...Array(3)].map((_, i) => (
               <Card key={i}>

@@ -1,93 +1,154 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Global CSS for DMS (Doctor Management System) Application
+ * This file contains Tailwind CSS configuration and custom styles
+ * It defines the design system including colors, fonts, and component styles
+ */
 
+/* Import Tailwind CSS layers - provides utility classes for styling */
+@tailwind base;        /* Base styles and resets */
+@tailwind components;  /* Component-specific styles */
+@tailwind utilities;   /* Utility classes for rapid development */
+
+/* Base font family configuration for the entire application */
 body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Custom utility classes for enhanced functionality */
 @layer utilities {
+  /* Text balance utility for better typography */
   .text-balance {
     text-wrap: balance;
   }
 }
 
+/* Base layer - Global CSS custom properties (CSS variables) for theming */
 @layer base {
+  /* Light theme color palette - Default application theme */
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    /* Background and foreground colors */
+    --background: 0 0% 100%;        /* Pure white background */
+    --foreground: 0 0% 3.9%;        /* Very dark gray for text */
+    
+    /* Card component colors */
+    --card: 0 0% 100%;              /* White card background */
+    --card-foreground: 0 0% 3.9%;   /* Dark text on cards */
+    
+    /* Popover component colors */
+    --popover: 0 0% 100%;           /* White popover background */
+    --popover-foreground: 0 0% 3.9%; /* Dark text in popovers */
+    
+    /* Primary brand colors - Main blue theme */
+    --primary: 0 0% 9%;             /* Very dark gray for primary elements */
+    --primary-foreground: 0 0% 98%; /* Light text on primary backgrounds */
+    
+    /* Secondary colors - Subtle accents */
+    --secondary: 0 0% 96.1%;        /* Very light gray */
+    --secondary-foreground: 0 0% 9%; /* Dark text on secondary */
+    
+    /* Muted colors - Subdued elements */
+    --muted: 0 0% 96.1%;            /* Light gray for muted elements */
+    --muted-foreground: 0 0% 45.1%; /* Medium gray for muted text */
+    
+    /* Accent colors - Highlighting elements */
+    --accent: 0 0% 96.1%;           /* Light accent background */
+    --accent-foreground: 0 0% 9%;   /* Dark text on accent */
+    
+    /* Destructive colors - Error states and dangerous actions */
+    --destructive: 0 84.2% 60.2%;   /* Red for errors and warnings */
+    --destructive-foreground: 0 0% 98%; /* Light text on destructive */
+    
+    /* Border and input colors */
+    --border: 0 0% 89.8%;           /* Light gray for borders */
+    --input: 0 0% 89.8%;            /* Input field borders */
+    --ring: 0 0% 3.9%;              /* Focus ring color */
+    
+    /* Chart colors - Data visualization palette */
+    --chart-1: 12 76% 61%;          /* Orange-red for first data series */
+    --chart-2: 173 58% 39%;         /* Teal for second data series */
+    --chart-3: 197 37% 24%;         /* Dark blue for third data series */
+    --chart-4: 43 74% 66%;          /* Yellow for fourth data series */
+    --chart-5: 27 87% 67%;          /* Orange for fifth data series */
+    
+    /* Border radius for consistent rounded corners */
     --radius: 0.5rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    
+    /* Sidebar component colors - Dashboard navigation */
+    --sidebar-background: 0 0% 98%;     /* Very light gray background */
+    --sidebar-foreground: 240 5.3% 26.1%; /* Dark gray text */
+    --sidebar-primary: 240 5.9% 10%;    /* Dark primary for sidebar */
+    --sidebar-primary-foreground: 0 0% 98%; /* Light text on primary */
+    --sidebar-accent: 240 4.8% 95.9%;   /* Light accent for sidebar */
+    --sidebar-accent-foreground: 240 5.9% 10%; /* Dark text on accent */
+    --sidebar-border: 220 13% 91%;      /* Light border for sidebar */
+    --sidebar-ring: 217.2 91.2% 59.8%;  /* Blue ring for sidebar focus */
   }
+  
+  /* Dark theme color palette - For users who prefer dark mode */
   .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Background and foreground colors - Inverted for dark theme */
+    --background: 0 0% 3.9%;        /* Very dark background */
+    --foreground: 0 0% 98%;         /* Light text */
+    
+    /* Card component colors - Dark theme */
+    --card: 0 0% 3.9%;              /* Dark card background */
+    --card-foreground: 0 0% 98%;    /* Light text on cards */
+    
+    /* Popover component colors - Dark theme */
+    --popover: 0 0% 3.9%;           /* Dark popover background */
+    --popover-foreground: 0 0% 98%; /* Light text in popovers */
+    
+    /* Primary colors - Dark theme */
+    --primary: 0 0% 98%;            /* Light primary elements */
+    --primary-foreground: 0 0% 9%;  /* Dark text on primary */
+    
+    /* Secondary colors - Dark theme */
+    --secondary: 0 0% 14.9%;        /* Dark gray secondary */
+    --secondary-foreground: 0 0% 98%; /* Light text on secondary */
+    
+    /* Muted colors - Dark theme */
+    --muted: 0 0% 14.9%;            /* Dark muted background */
+    --muted-foreground: 0 0% 63.9%; /* Medium light text */
+    
+    /* Accent colors - Dark theme */
+    --accent: 0 0% 14.9%;           /* Dark accent background */
+    --accent-foreground: 0 0% 98%;  /* Light text on accent */
+    
+    /* Destructive colors - Dark theme */
+    --destructive: 0 62.8% 30.6%;   /* Darker red for errors */
+    --destructive-foreground: 0 0% 98%; /* Light text on destructive */
+    
+    /* Border and input colors - Dark theme */
+    --border: 0 0% 14.9%;           /* Dark borders */
+    --input: 0 0% 14.9%;            /* Dark input borders */
+    --ring: 0 0% 83.1%;             /* Light focus ring */
+    
+    /* Chart colors - Dark theme compatible */
+    --chart-1: 220 70% 50%;         /* Blue for charts */
+    --chart-2: 160 60% 45%;         /* Green for charts */
+    --chart-3: 30 80% 55%;          /* Orange for charts */
+    --chart-4: 280 65% 60%;         /* Purple for charts */
+    --chart-5: 340 75% 55%;         /* Pink for charts */
+    
+    /* Sidebar colors - Dark theme */
+    --sidebar-background: 240 5.9% 10%;    /* Dark sidebar background */
+    --sidebar-foreground: 240 4.8% 95.9%;  /* Light sidebar text */
+    --sidebar-primary: 224.3 76.3% 48%;    /* Blue primary for sidebar */
+    --sidebar-primary-foreground: 0 0% 100%; /* White text on primary */
+    --sidebar-accent: 240 3.7% 15.9%;      /* Dark accent for sidebar */
+    --sidebar-accent-foreground: 240 4.8% 95.9%; /* Light text on accent */
+    --sidebar-border: 240 3.7% 15.9%;      /* Dark border for sidebar */
+    --sidebar-ring: 217.2 91.2% 59.8%;     /* Blue ring for sidebar focus */
   }
 }
 
+/* Base styles applied to all elements */
 @layer base {
+  /* Global border color application */
   * {
     @apply border-border;
   }
+  
+  /* Body styling - Uses CSS custom properties for consistent theming */
   body {
     @apply bg-background text-foreground;
   }

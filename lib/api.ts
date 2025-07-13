@@ -1,17 +1,26 @@
+// API Service - Frontend service for communicating with the backend
+// This service handles all HTTP requests to the backend API
+// It includes authentication, error handling, and response formatting
+
+// Standard API response format used throughout the application
 interface ApiResponse<T = any> {
-  success: boolean
-  data?: T
-  message?: string
-  errors?: Record<string, string[]>
+  success: boolean    // Indicates if the request was successful
+  data?: T           // Response data (if successful)
+  message?: string   // Error or success message
+  errors?: Record<string, string[]>  // Validation errors (if any)
 }
 
+// Main API service class that handles all backend communication
 class ApiService {
   private baseUrl: string
 
   constructor() {
+    // Set base URL from environment variable or default to localhost
     this.baseUrl = process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:3000"
   }
 
+  // Retrieve authentication token from local storage
+  // Used for authenticated requests to protected endpoints
   private getToken() {
     if (typeof window !== "undefined") {
       return localStorage.getItem("token")
@@ -19,10 +28,16 @@ class ApiService {
     return null
   }
 
+  // Generic HTTP request method with authentication and error handling
+  // This method is used by all other API methods to make requests
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
     try {
+      // Get authentication token if available
       const token = this.getToken();
+      
+      // Prepare headers with authentication and content type
       let baseHeaders: Record<string, string> = { "Content-Type": "application/json" };
+      
       // Merge headers from options, handling both plain objects and Headers instances
       if (options.headers) {
         if (options.headers instanceof Headers) {
@@ -33,16 +48,22 @@ class ApiService {
           baseHeaders = { ...baseHeaders, ...options.headers as Record<string, string> };
         }
       }
+      
+      // Add authorization header if token exists
       if (token) {
         baseHeaders["Authorization"] = `Bearer ${token}`;
       }
+      
+      // Make the HTTP request
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
         ...options,
         headers: baseHeaders,
       })
 
+      // Parse JSON response
       const data = await response.json()
 
+      // Handle error responses
       if (!response.ok) {
         return {
           success: false,
@@ -51,12 +72,14 @@ class ApiService {
         }
       }
 
+      // Successful response
       return {
         success: true,
         data: data.data || data,
         message: data.message,
       }
     } catch (error) {
+      // Network or unexpected error
       return {
         success: false,
         message: "Network error occurred",

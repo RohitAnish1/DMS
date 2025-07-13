@@ -1,52 +1,72 @@
+// Database Schema Definition for DMS (Doctor Management System)
+// This Prisma schema defines the data model for the entire application
+// It includes Users, Doctors, Appointments, and Locations with their relationships
+
+// Prisma Client Configuration - Generates TypeScript client for database operations
 generator client {
   provider = "prisma-client-js"
 }
 
+// Database Configuration - Uses PostgreSQL for production reliability
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+// User Model - Central user entity for both doctors and patients
+// Stores common user information and authentication details
 model User {
   id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  name      String
-  role      String   // 'doctor' or 'patient'
-  phone     String
-  medicalRegistrationNumber String? // optional for patients
-  dateOfBirth DateTime?
-  gender    String?
-  address   String?
-  profilePhoto String?
-  appointmentsAsPatient Appointment[] @relation("PatientAppointments")
-  doctor    Doctor?
+  email     String   @unique                      // Unique email for authentication
+  password  String                               // Hashed password for security
+  name      String                               // Full name of the user
+  role      String   // 'doctor' or 'patient'    // User role for authorization
+  phone     String                               // Contact phone number
+  medicalRegistrationNumber String? // optional for patients  // Doctor's license number
+  dateOfBirth DateTime?                          // Optional birth date
+  gender    String?                              // Optional gender information
+  address   String?                              // Optional address information
+  profilePhoto String?                           // Optional profile image URL
+  
+  // Relationships
+  appointmentsAsPatient Appointment[] @relation("PatientAppointments")  // Patient's appointments
+  doctor    Doctor?                              // Doctor profile (if user is a doctor)
+  
+  // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
+// Doctor Model - Extended profile for doctor users
+// Contains doctor-specific information and relationships
 model Doctor {
   id           Int           @id @default(autoincrement())
-  user         User          @relation(fields: [userId], references: [id])
-  userId       Int           @unique
-  specialty    String
-  appointments Appointment[] @relation("DoctorAppointments")
-  locations    Location[]
+  user         User          @relation(fields: [userId], references: [id])  // Reference to User
+  userId       Int           @unique                                         // One-to-one with User
+  specialty    String                                                       // Medical specialty
+  
+  // Relationships
+  appointments Appointment[] @relation("DoctorAppointments")  // Doctor's appointments
+  locations    Location[]                                     // Doctor's practice locations
 }
 
+// Appointment Model - Core booking entity
+// Manages appointments between doctors and patients
 model Appointment {
   id         Int      @id @default(autoincrement())
   doctor     Doctor   @relation("DoctorAppointments", fields: [doctorId], references: [id])
-  doctorId   Int
+  doctorId   Int                                    // Foreign key to Doctor
   patient    User     @relation("PatientAppointments", fields: [patientId], references: [id])
-  patientId  Int
-  date       DateTime
-  status     String
+  patientId  Int                                    // Foreign key to User (patient)
+  date       DateTime                               // Appointment date and time
+  status     String                                 // Status: 'scheduled', 'completed', 'cancelled'
 }
 
+// Location Model - Practice locations for doctors
+// Supports multi-location practices
 model Location {
   id        Int      @id @default(autoincrement())
-  address   String
+  address   String                                  // Physical address of the location
   doctor    Doctor   @relation(fields: [doctorId], references: [id])
-  doctorId  Int
+  doctorId  Int                                     // Foreign key to Doctor
 }
